@@ -30,13 +30,7 @@ namespace EnergyStar
             // Nickel or higher will be better, but at least it works in Cobalt
             //
             // In .NET 5.0 and later, System.Environment.OSVersion always returns the actual OS version.
-            if (Environment.OSVersion.Version.Build < 22000)
-            {
-                Console.WriteLine("E: You are too poor to use this program.");
-                Console.WriteLine("E: Please upgrade to Windows 11 22H2 for best result, and consider ThinkPad Z13 as your next laptop.");
-                // ERROR_CALL_NOT_IMPLEMENTED
-                Environment.Exit(120);
-            }
+
 
             HookManager.SubscribeToWindowEvents();
             EnergyManager.ThrottleAllUserBackgroundProcesses();
@@ -44,23 +38,15 @@ namespace EnergyStar
             var houseKeepingThread = new Thread(new ThreadStart(HouseKeepingThreadProc));
             houseKeepingThread.Start();
 
-            while (true)
+            while (Event.GetMessage(out Win32WindowForegroundMessage msg, IntPtr.Zero, 0, 0))
             {
-                if (Event.GetMessage(out Win32WindowForegroundMessage msg, IntPtr.Zero, 0, 0))
-                {
-                    if (msg.Message == Event.WM_QUIT)
-                    {
-                        cts.Cancel();
-                        break;
-                    }
-
                     Event.TranslateMessage(ref msg);
                     Event.DispatchMessage(ref msg);
-                }
             }
 
             cts.Cancel();
             HookManager.UnsubscribeWindowEvents();
+            Console.WriteLine("bye");
         }
     }
 }
